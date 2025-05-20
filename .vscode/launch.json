@@ -1,6 +1,16 @@
 {
     "configurations": [
         {
+            "type": "lldb-dap",
+            "request": "launch",
+            "name": "Launch",
+            "program": "${workspaceRoot}\\${fileBasenameNoExtension}.exe",
+            "args": [],
+            "env": [],
+            "cwd": "${workspaceRoot}"
+        },
+
+        {
             "name": "C/C++: clang++.exe build and debug active file",
             "type": "cppdbg",
             "request": "launch",
