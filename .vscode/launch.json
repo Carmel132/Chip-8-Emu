@@ -1,15 +1,17 @@
 {
     "configurations": [
         {
-            "type": "lldb-dap",
+            "name": "(Windows) Launch",
+            "type": "cppvsdbg",
             "request": "launch",
-            "name": "Launch",
-            "program": "${workspaceRoot}\\${fileBasenameNoExtension}.exe",
+            "program": "${fileDirname}\\${fileBasenameNoExtension}.exe",
             "args": [],
-            "env": [],
-            "cwd": "${workspaceRoot}"
+            "stopAtEntry": false,
+            "cwd": "${fileDirname}",
+            "environment": [],
+            "console": "integratedTerminal",
+            "preLaunchTask": "build"
         },
-
         {
             "name": "C/C++: clang++.exe build and debug active file",
             "type": "cppdbg",

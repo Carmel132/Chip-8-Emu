@@ -4,7 +4,6 @@
 #include "process.h"
 int main() {
     std::srand(std::time(0));
-    
     auto instr = read_bin("space_invaders.ch8");
     Memory mem{};
     for (int i = 0; i < instr.size() - 1; i += 2) {

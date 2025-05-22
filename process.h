@@ -6,7 +6,7 @@ void clear_display(Memory* mem) {
     return;
     for (int i = 0; i < GRAPHIC_HEIGHT; ++i) {
         for (int j = 0; j < GRAPHIC_WIDTH; ++j) {
-            mem->graphic[i][j] = 0;
+            mem->graphic->reset();
         }
     }
     mem->program_counter++;
