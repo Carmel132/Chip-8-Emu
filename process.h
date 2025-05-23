@@ -3,17 +3,12 @@
 #include "resource/random.h"
 
 void clear_display(Memory* mem) {
-    return;
-    for (int i = 0; i < GRAPHIC_HEIGHT; ++i) {
-        for (int j = 0; j < GRAPHIC_WIDTH; ++j) {
-            mem->graphic->reset();
-        }
-    }
-    mem->program_counter++;
+    mem->graphic->reset();
 }
 
 void return_from_subroutine(Memory* mem) {
     mem->program_counter = mem->stack.pop();
+    std::cout << "HELLOO";
 }
 
 void jump_machine_code_routine(Memory* mem, uint16_t addr) {
@@ -25,7 +20,7 @@ void set_program_counter(Memory* mem, uint16_t addr) {
 }
 
 void call_subroutine(Memory* mem, uint16_t addr) {
-    mem->stack.add(addr);
+    mem->stack.add(mem->program_counter);
     mem->program_counter = addr;
 }
 
@@ -33,17 +28,11 @@ void skip_next_equal(Memory* mem, uint8_t reg, uint8_t byte) {
     if (mem->registers[reg] == byte) {
         mem->program_counter += 2;
     }
-    else {
-        mem->program_counter++;
-    }
 }
 
 void skip_next_not_equal(Memory* mem, uint8_t reg, uint8_t byte) {
     if (mem->registers[reg] != byte) {
         mem->program_counter += 2;
-    }
-    else {
-        mem->program_counter++;
     }
 }
 
@@ -51,102 +40,70 @@ void skip_next_reg_equal(Memory* mem, uint8_t reg1, uint8_t reg2) {
     if (mem->registers[reg1] == mem->registers[reg2]) {
         mem->program_counter += 2;
     }
-    else {
-        mem->program_counter++;
-    }
 }
 
 void insert_reg_byte(Memory* mem, uint8_t reg, uint8_t byte) {
     mem->registers[reg] = byte;
-    mem->program_counter++;
 }
 
 void add_reg_byte(Memory* mem, uint8_t reg, uint8_t byte) {
     mem->registers[reg] += byte;
-    mem->program_counter++;
 }
 
 void insert_reg_reg(Memory* mem, uint8_t reg1, uint8_t reg2) {
     mem->registers[reg1] = mem->registers[reg2];
-    mem->program_counter++;
 }
 
 void or_reg(Memory* mem, uint8_t reg1, uint8_t reg2) {
     mem->registers[reg1] |= mem->registers[reg2];
-    mem->program_counter++;
 }
 
 void and_reg(Memory* mem, uint8_t reg1, uint8_t reg2) {
     mem->registers[reg1] &= mem->registers[reg2];
-    mem->program_counter++;
 }
 
 void xor_reg(Memory* mem, uint8_t reg1, uint8_t reg2) {
     mem->registers[reg1] ^= mem->registers[reg2];
-    mem->program_counter++;
 }
 
 void add_reg(Memory* mem, uint8_t reg1, uint8_t reg2) {
     uint16_t res = mem->registers[reg1] + mem->registers[reg2];
-    mem->registers[reg1] = res % 0x100;
-    if (res >= 0x100) {
-        mem->registers[0xF] = 1;
-    }
-    else {
-        mem->registers[0xF] = 0;
-    }
-    mem->program_counter++;
+    mem->registers[reg1] = res;
+    mem->registers[0xF] = res >= 0x100;
 }
 
 void sub_reg(Memory* mem, uint8_t reg1, uint8_t reg2) {
     uint16_t res = mem->registers[reg1] - mem->registers[reg2];
-    if (mem->registers[reg1] > mem->registers[reg2]) {
-        mem->registers[0xF] = 1;
-    }
-    else {
-        mem->registers[0xF] = 0;
-    }
-
-    mem->registers[reg1] = res % 0x100;
-    mem->program_counter++;
+    mem->registers[0xF] = mem->registers[reg1] > mem->registers[reg2];
+    mem->registers[reg1] = res;
 }
 
-void shift_right(Memory* mem, uint8_t reg1, uint8_t _) {
-    if (mem->registers[reg1] & 0x1) {
-        mem->registers[0xF] = 1;
-    }
-    else {
-        mem->registers[0xF] = 0;
-    }
-    mem->registers[reg1] /= 2;
-    mem->program_counter++;
+void shift_right(Memory* mem, uint8_t reg1, uint8_t reg2) {
+    mem->registers[reg1] = mem->registers[reg2];
+    mem->registers[0xF] = mem->registers[reg1] & 0x1;
+    mem->registers[reg1] >>= 1;
 }
 
 void subn_reg(Memory* mem, uint8_t reg1, uint8_t reg2) {
     mem->registers[0xF] = mem->registers[reg2] > mem->registers[reg1];
-    
     mem->registers[reg1] = mem->registers[reg2] - mem->registers[reg1];
-    mem->program_counter++;
 }
 
-void shift_left(Memory* mem, uint8_t reg1, uint8_t _) {
+void shift_left(Memory* mem, uint8_t reg1, uint8_t reg2) {
+    mem->registers[reg1] = mem->registers[reg2];
     mem->registers[0xF] = (bool)(mem->registers[reg1] & 0x80);
-    mem->registers[reg1] *= 2;
-    mem->program_counter++;
+    mem->registers[reg1] <<= 1;
 }
 
 void skip_next_reg_not_equal(Memory* mem, uint8_t reg1, uint8_t reg2) {
     if (mem->registers[reg1] != mem->registers[reg2]) {
         mem->program_counter += 2;
     }
-    else {
-        mem->program_counter++;
-    }
+
 }
 
 void set_I(Memory* mem, uint16_t addr) {
     mem->I_register = addr;
-    mem->program_counter++;
 }
 
 void jump_PC_addr_V0(Memory* mem, uint16_t addr) {
@@ -155,7 +112,6 @@ void jump_PC_addr_V0(Memory* mem, uint16_t addr) {
 
 void random_and_byte(Memory* mem, uint8_t reg, uint8_t byte) {
     mem->registers[reg] = rand_byte() & byte;
-    mem->program_counter++;
 }
 
 void disp(Memory* mem, uint8_t reg1, uint8_t reg2, uint8_t sz) {
@@ -166,29 +122,27 @@ void disp(Memory* mem, uint8_t reg1, uint8_t reg2, uint8_t sz) {
         uint8_t scr = mem->memory[mem->I_register + i];
         for (int j = 0; j < 8; j++) {
             auto scr_bit = (scr & (1 << (7-j))) >> (7-j);
-            auto bit = mem->graphic[x + j][y];
+            bool bit = mem->graphic[y + i][x + j];
             
             auto res = bit ^ scr_bit;
-            n_VF |= res & bit;
-            mem->graphic[x+j][y] = res;
+            n_VF |= scr_bit & bit;
+            mem->graphic[y + i][x+j] = res;
         }
     }
     mem->registers[0xF] = n_VF;
-    mem->program_counter++;
+    print_screen(mem);
 }
 
 void skip_next_kb_down(Memory* mem, uint8_t reg) {
     if (mem->keyboard[mem->registers[reg]]) {
-        mem->program_counter++;
+        mem->program_counter+=2 ;
     }
-    mem->program_counter++;
 }
 
 void skip_next_kb_not_down(Memory* mem, uint8_t reg) {
     if (!mem->keyboard[mem->registers[reg]]) {
-            mem->program_counter++;
+            mem->program_counter += 2;
         }
-        mem->program_counter++;
 }
 
 void set_reg_delay_timer(Memory* mem, uint8_t reg) {
@@ -198,28 +152,23 @@ void set_reg_delay_timer(Memory* mem, uint8_t reg) {
 void wait_for_key(Memory* mem, uint8_t reg) {
     mem->registers[reg] = mem->keyboard[mem->registers[reg]];
     if (mem->registers[reg]) {
-        mem->program_counter++;
     }
 }
 
 void set_delay_timer_reg(Memory* mem, uint8_t reg) {
     mem->delay_timer = mem->registers[reg];
-    mem->program_counter++;
 }
 
 void set_sound_timer_reg(Memory* mem, uint8_t reg) {
     mem->sound_timer = mem->registers[reg];
-    mem->program_counter++;
 }
 
 void add_I_reg(Memory* mem, uint8_t reg) {
     mem->I_register += mem->registers[reg];
-    mem->program_counter++;
 }
 
 void set_I_sprite_loc(Memory* mem, uint8_t reg) {
     mem->I_register = mem->registers[reg] * 5;
-    mem->program_counter++;
 }
 
 void copy_upto_reg_at_I(Memory* mem, uint8_t reg) {
@@ -227,7 +176,6 @@ void copy_upto_reg_at_I(Memory* mem, uint8_t reg) {
         mem->memory[mem->I_register + i] = mem->registers[i];
     }
     mem->I_register += reg + 1;
-    mem->program_counter++;
 }
 
 void copy_at_I_into_reg(Memory* mem, uint8_t reg) {
@@ -235,16 +183,14 @@ void copy_at_I_into_reg(Memory* mem, uint8_t reg) {
         mem->registers[i] = mem->memory[mem->I_register + i];
     }
     mem->I_register += reg + 1;
-    mem->program_counter++;
 }
 
 void store_bcd(Memory* mem, uint8_t reg) {
     auto v = mem->registers[reg];
-    for (int i = 2; i <= 0; i--) {
+    for (int i = 2; i >= 0; i--) {
         mem->memory[mem->I_register + i] = v%10;
         v/=10; 
     }
-    mem->program_counter++;
 }
 
 void interpret_instruction(uint16_t inst, Memory* mem) {
@@ -369,4 +315,8 @@ void interpret_instruction(uint16_t inst, Memory* mem) {
                 break;
         }
     }
+}
+
+uint16_t get_instr_at_PC(const Memory* mem) {
+    return (mem->memory[mem->program_counter] << 010) + mem->memory[mem->program_counter + 1];
 }

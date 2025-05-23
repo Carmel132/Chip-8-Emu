@@ -2,6 +2,7 @@
 #include <iostream>
 #include <bitset>
 #include <cstdint>
+#include <cstdlib>
 #include "resource/stack.h"
 #define GRAPHIC_WIDTH 64
 #define GRAPHIC_HEIGHT 32
@@ -35,8 +36,28 @@ struct Memory {
     uint8_t registers[0x10]{};
     
     Stack<uint16_t, 0x10> stack{};
-    uint16_t I_register{}, program_counter{};
+    uint16_t I_register{}, program_counter{0x200};
     uint8_t delay_timer{}, sound_timer{}/*, stack_pointer*/;
     std::bitset<GRAPHIC_WIDTH> graphic[GRAPHIC_HEIGHT]{};
     std::bitset<16> keyboard{};
 };
+
+void load_program_bytes(Memory* mem, std::vector<uint8_t> program, uint16_t start = 0x200) {
+    for (int i = 0; i < program.size(); ++i) {
+        mem->memory[start + i] = program[i];
+    }
+}
+
+void print_screen(const Memory* mem) {
+    system("cls");
+    char buf[GRAPHIC_WIDTH + 1]{};
+    buf[GRAPHIC_WIDTH] = '\0';
+    for (int i = 0; i < GRAPHIC_HEIGHT; i++) {
+        for (int j = 0; j < GRAPHIC_WIDTH; j++)
+        {
+            buf[j] = mem->graphic[i][j] ? '#' : ' ';
+        }
+
+        std::cout << buf << "\n";
+    }
+}

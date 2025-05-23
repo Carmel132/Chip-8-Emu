@@ -11,11 +11,11 @@ struct Stack {
         idx++;
     }
     T pop() {
-        T ret{data[idx]};
         idx--;
+        T ret{data[idx]};
         return ret;
     }
     T top() const {
-        return data[idx];
+        return data[idx - 1];
     }
 };

@@ -4,12 +4,21 @@
 #include "process.h"
 int main() {
     std::srand(std::time(0));
-    auto instr = read_bin("space_invaders.ch8");
+
     Memory mem{};
-    for (int i = 0; i < instr.size() - 1; i += 2) {
-        uint16_t j = (instr[i] << 8) + instr[i + 1];
-        interpret_instruction(j, &mem);
+
+    std::vector<uint8_t> instr = read_bin("programs/space_invaders.ch8");
+    load_program_bytes(&mem, instr);
+
+    for(;;) {
+        // Fetch
+        uint16_t instruction = get_instr_at_PC(&mem);
+        //std::cout << std::hex << instruction << "\n";
+        mem.program_counter += 2;
+        // Decode
+        interpret_instruction(instruction, & mem);
     }
+    print_screen(&mem);
     std::cout << mem.registers[0];
     std::cout << instr.size();
     return 0;
