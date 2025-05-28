@@ -117,9 +117,11 @@ void disp(Memory* mem, uint8_t reg1, uint8_t reg2, uint8_t sz) {
     auto x = mem->registers[reg1];
     auto y = mem->registers[reg2];
     uint8_t n_VF = 0;
-    for (int i = 0; i < sz; ++i) {
+    for (int i = 0; i < sz && y + i < 32; ++i) {
         uint8_t scr = mem->memory[mem->I_register + i];
-        for (int j = 0; j < 8; j++) {
+        for (int j = 0; j < 8 && x + j < 64; j++) {
+            
+
             auto scr_bit = (scr & (1 << (7-j))) >> (7-j);
             bool bit = mem->graphic[y + i][x + j];
             
@@ -129,7 +131,7 @@ void disp(Memory* mem, uint8_t reg1, uint8_t reg2, uint8_t sz) {
         }
     }
     mem->registers[0xF] = n_VF;
-    print_screen(mem);
+    //print_screen(mem);
 }
 
 void skip_next_kb_down(Memory* mem, uint8_t reg) {
@@ -313,6 +315,9 @@ void interpret_instruction(uint16_t inst, Memory* mem) {
                 copy_at_I_into_reg(mem, reg);
                 break;
         }
+    }
+    else {
+        std::cout << "COULD NOT IDENTIFY INSTR: " << std::hex << inst << "\n";
     }
 }
 

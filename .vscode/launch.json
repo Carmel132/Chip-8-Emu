@@ -9,7 +9,6 @@
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
             "environment": [],
-            "console": "integratedTerminal",
             "preLaunchTask": "build"
         },
         {
@@ -37,6 +36,18 @@
                 }
             ],
             "preLaunchTask": "C/C++: clang++.exe build active file"
+        },
+
+        {
+      "name": "Debug CMake",
+      "type": "cppvsdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/build/main.exe",  // Adjust as needed
+      "args": [],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}",
+      "environment": [],
+      "console": "externalTerminal"
         }
     ],
     "version": "2.0.0"

@@ -61,3 +61,12 @@ void print_screen(const Memory* mem) {
         std::cout << buf << "\n";
     }
 }
+
+void tick(Memory* mem) {
+    if (mem->delay_timer > 0) {
+        mem->delay_timer--;
+    }
+    if (mem->sound_timer > 0) {
+        mem->sound_timer--;
+    }
+}

@@ -2,7 +2,7 @@
 #include <SDL3/SDL.h>
 #include <cstdlib>
 
-constexpr int SCR_SCL = 10;
+constexpr int SCR_SCL = 35;
 constexpr int WIDTH = 64 * SCR_SCL;
 constexpr int HEIGHT = 32 * SCR_SCL;
 
@@ -17,7 +17,7 @@ struct Window {
 
 
     void start() {
-        std::vector<uint8_t> instr = read_bin("programs/space_invaders.ch8");
+        std::vector<uint8_t> instr = read_bin("programs/breakout.ch8");
         load_program_bytes(&mem, instr);
     }
 
@@ -28,8 +28,27 @@ struct Window {
         mem.program_counter += 2;
         // Decode
         interpret_instruction(instruction, & mem);
+        tick(&mem);
     }
 
+    void render_square(SDL_Renderer* renderer, int x, int y) {
+        float f_x = (float)x, f_y = (float)y;
+        
+        SDL_FRect r{f_x, f_y, SCR_SCL, SCR_SCL};
+        SDL_RenderFillRect(renderer, &r);
+    }
+
+    void render_screen() {
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        for (int i = 0; i < 64; i++) {
+            for (int j = 0; j < 32; j++) {
+                bool p = mem.graphic[j][i];
+                if (p) {
+                    render_square(renderer, i * SCR_SCL , j * SCR_SCL);
+                }
+            }
+        }
+    }
 
     uint64_t time_left() {
         uint64_t now = SDL_GetTicks();
@@ -37,13 +56,15 @@ struct Window {
         return next_time - now;
     }
     void init() {
-        if (!SDL_Init(SDL_INIT_VIDEO))
-            {std::cout << "BRUH" << SDL_GetError();
-			return;}
+        if (!SDL_Init(SDL_INIT_VIDEO)){
+            std::cout << "BRUH" << SDL_GetError();
+			return;
+        }
 	
 	
         win = SDL_CreateWindow("Chip 8 Emulator", WIDTH, HEIGHT, 0);
-        renderer = SDL_CreateRenderer(win, "Chip 8 Emulator");
+        renderer = SDL_CreateRenderer(win, NULL);
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     }
 
     void run() {
@@ -64,12 +85,20 @@ struct Window {
                 }
             }
 
-            op();
-            
+            frame();
+            if (!SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255)) {
+                std::cout << SDL_GetError() << "\n lmfao";
+                std::cout << "line";
+            }
             SDL_RenderClear(renderer);
+
+            render_screen();
+
             SDL_RenderPresent(renderer);
 
-            SDL_Delay(time_left());
+            
+
+            //SDL_Delay(time_left()/  100);
             next_time += SCREEN_TICKS_PER_FRAME;
         }
         SDL_DestroyRenderer(renderer);
