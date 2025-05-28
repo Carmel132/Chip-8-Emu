@@ -8,7 +8,6 @@ void clear_display(Memory* mem) {
 
 void return_from_subroutine(Memory* mem) {
     mem->program_counter = mem->stack.pop();
-    std::cout << "HELLOO";
 }
 
 void jump_machine_code_routine(Memory* mem, uint16_t addr) {

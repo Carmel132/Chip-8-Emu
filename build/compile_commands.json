@@ -1,0 +1,8 @@
+[
+{
+  "directory": "C:/Users/User/vclib/C++/chip8_emu/build",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\CLANG_~1.EXE -IC:/Users/User/vclib/C++/chip8_emu/resource -IC:/Users/User/vclib/C++/chip8_emu -IC:/Users/User/vcpkg/installed/x64-windows/include -O0 -g -Xclang -gcodeview -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -o CMakeFiles\\main.dir\\main.cpp.obj -c C:\\Users\\User\\vclib\\C++\\chip8_emu\\main.cpp",
+  "file": "C:\\Users\\User\\vclib\\C++\\chip8_emu\\main.cpp",
+  "output": "CMakeFiles\\main.dir\\main.cpp.obj"
+}
+]
