@@ -40,7 +40,11 @@ struct Memory {
     uint8_t delay_timer{}, sound_timer{}/*, stack_pointer*/;
     std::bitset<GRAPHIC_WIDTH> graphic[GRAPHIC_HEIGHT]{};
     std::bitset<16> keyboard{};
+
+    bool reloadGraphics{false};
 };
+
+
 
 void load_program_bytes(Memory* mem, std::vector<uint8_t> program, uint16_t start = 0x200) {
     for (int i = 0; i < program.size(); ++i) {

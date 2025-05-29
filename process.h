@@ -131,6 +131,7 @@ void disp(Memory* mem, uint8_t reg1, uint8_t reg2, uint8_t sz) {
         }
     }
     mem->registers[0xF] = n_VF;
+    mem->reloadGraphics = true;
     //print_screen(mem);
 }
 
@@ -152,7 +153,8 @@ void set_reg_delay_timer(Memory* mem, uint8_t reg) {
 
 void wait_for_key(Memory* mem, uint8_t reg) {
     mem->registers[reg] = mem->keyboard[mem->registers[reg]];
-    if (mem->registers[reg]) {
+    if (!mem->registers[reg]) {
+        mem->program_counter -= 2;
     }
 }
 

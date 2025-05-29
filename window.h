@@ -1,25 +1,27 @@
 #pragma once
 #include <SDL3/SDL.h>
+#include "resource/keyboard.h"
 #include <cstdlib>
 
 constexpr int SCR_SCL = 35;
 constexpr int WIDTH = 64 * SCR_SCL;
 constexpr int HEIGHT = 32 * SCR_SCL;
 
-constexpr int CPU_HZ = 500;
-constexpr int MS_PER_CPU_CYCLE = 1000/CPU_HZ;
+int CPU_HZ = 800;
+#define MS_PER_CPU_CYCLE 1000/CPU_HZ
 
 constexpr int SCREEN_FPS = 60;
 constexpr int MS_PER_TIMER_CYLE = 1000 / SCREEN_FPS;
+
+void store_key_input(Memory* mem, SDL_Keycode key) {
+
+}
 
 struct Window {
     SDL_Window *win = NULL;
 	SDL_Renderer *renderer = NULL;
     
     Memory mem{};
-
-    
-
 
     void start() {
         std::vector<uint8_t> instr = read_bin("programs/breakout.ch8");
@@ -64,14 +66,13 @@ struct Window {
 	
         win = SDL_CreateWindow("Chip 8 Emulator", WIDTH, HEIGHT, 0);
         renderer = SDL_CreateRenderer(win, NULL);
-        //SDL_SetRenderVSync(renderer, 1);
     }
 
     void run() {
         bool quit = false;
         double cpu_acc{}, timer_acc{};
         uint64_t last_time = SDL_GetPerformanceCounter();
-        //next_time = SDL_GetTicks() + SCREEN_TICKS_PER_FRAME;
+
         while (!quit) {
             Uint64 start = SDL_GetPerformanceCounter();
             double change_in_time = (start - last_time) * 1000.0 / SDL_GetPerformanceFrequency();
@@ -87,14 +88,17 @@ struct Window {
 
             if (timer_acc >= MS_PER_TIMER_CYLE) {
                 tick(&mem);
-
-                if (!SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255)) {
-                std::cout << SDL_GetError() << "\n lmfao";
-                std::cout << "line";
+                if (mem.reloadGraphics) {
+                    if (!SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255)) {
+                    std::cout << SDL_GetError() << "\n lmfao";
+                    std::cout << "line";
+                    }
+                    SDL_RenderClear(renderer);
+                    render_screen();    
+                    SDL_RenderPresent(renderer);
+                    mem.reloadGraphics = false;
                 }
-                SDL_RenderClear(renderer);
-                render_screen();    
-                SDL_RenderPresent(renderer);
+                
                 
                 timer_acc -= MS_PER_TIMER_CYLE;
             }
@@ -107,22 +111,19 @@ struct Window {
                 else if (e.type == SDL_EVENT_KEY_UP && e.key.key == SDLK_ESCAPE) {
                     quit = true;
                 }
+                else if (e.type == SDL_EVENT_KEY_DOWN) {
+                    uint8_t key = key_lookup(e.key.key);
+                    if (key != 0xFF) {mem.keyboard[key] = 1;}
+                }
+                else if (e.type == SDL_EVENT_KEY_UP) {
+                    uint8_t key = key_lookup(e.key.key);
+                    if (key != 0xFF) {mem.keyboard[key] = 0;}
+                }
+                else if (e.type == SDL_EVENT_MOUSE_WHEEL) {
+                    CPU_HZ += e.wheel.integer_y;
+                    std::cout << CPU_HZ << "\n";
+                }
             }
-
-            /*frame();
-            tick(&mem);
-
-
-            
-            
-
-            
-
-
-            //Uint64 end = SDL_GetPerformanceCounter();
-            //double elapsedMS = (end - start) * 1000.0 / SDL_GetPerformanceFrequency();
-            double time_to_wait = SCREEN_TICKS_PER_FRAME - elapsedMS;
-            if (time_to_wait > 0) SDL_Delay(time_to_wait);*/
         }
         SDL_DestroyRenderer(renderer);
         SDL_DestroyWindow(win);
