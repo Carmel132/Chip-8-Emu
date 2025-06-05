@@ -12,8 +12,5 @@ int main() {
     w.init();
     w.start();
     w.run();
-    /*print_screen(&mem);
-    std::cout << mem.registers[0];
-    std::cout << instr.size();*/
     return 0;
 }

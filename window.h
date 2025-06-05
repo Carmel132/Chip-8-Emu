@@ -13,9 +13,8 @@ int CPU_HZ = 800;
 constexpr int SCREEN_FPS = 60;
 constexpr int MS_PER_TIMER_CYLE = 1000 / SCREEN_FPS;
 
-void store_key_input(Memory* mem, SDL_Keycode key) {
+uint8_t d[1]{0xFF};
 
-}
 
 struct Window {
     SDL_Window *win = NULL;
@@ -58,7 +57,7 @@ struct Window {
     }
 
     void init() {
-        if (!SDL_Init(SDL_INIT_VIDEO)){
+        if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO)){
             std::cout << "BRUH" << SDL_GetError();
 			return;
         }
@@ -127,6 +126,5 @@ struct Window {
         }
         SDL_DestroyRenderer(renderer);
         SDL_DestroyWindow(win);
-        
     }
 };
