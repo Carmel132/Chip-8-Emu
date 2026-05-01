@@ -1,3 +1,0 @@
-C:/Users/User/vclib/C++/chip8_emu/build/CMakeFiles/main.dir
-C:/Users/User/vclib/C++/chip8_emu/build/CMakeFiles/edit_cache.dir
-C:/Users/User/vclib/C++/chip8_emu/build/CMakeFiles/rebuild_cache.dir

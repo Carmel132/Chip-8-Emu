@@ -1,6 +1,0 @@
-/*{
-  "C_Cpp.default.compileCommands": "${workspaceFolder}/build/compile_commands.json",
-  //"C_Cpp.intelliSenseEngine": "default",
-  "C_Cpp.default.intelliSenseMode": "msvc-x64",
-  "C_Cpp.default.cppStandard": "c++20"
-}*/
